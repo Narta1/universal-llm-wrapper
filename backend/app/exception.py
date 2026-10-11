@@ -5,3 +5,6 @@ class UnknownProviderError(Exception):
 
 class ProviderUnavailableError(Exception):
     pass
+
+class InvalidAPIKeyError(Exception):
+    pass

@@ -41,11 +41,26 @@ async def gen_response(req : ChatRequest):
 
     return resp
 
-async def gen_streamed_response(req:ChatRequest):
-    provider=provider_manager.get_provider(req.provider)
-    prompt=gen_prompt(req)
-    async for chunk in provider.stream(prompt,req.model):
+
+async def gen_streamed_response(req: ChatRequest):
+    provider = provider_manager.get_provider(req.provider)
+    prompt = gen_prompt(req)
+
+    stream = provider.stream(prompt, req.model)
+
+    try:
+        first_chunk = await anext(stream)
+    except StopAsyncIteration:
+        return
+    except Exception:
+        await stream.aclose()
+        raise
+
+    yield first_chunk
+
+    async for chunk in stream:
         yield chunk
+
 
 
 def calculate_cost(model, input_tokens, output_tokens):

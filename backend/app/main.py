@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from app.schemas import ChatRequest
 from app.services.llm_services import gen_response,gen_streamed_response
 from app.services.model_service import get_avalaible_models
-from app.exception import ProviderUnavailableError, UnknownProviderError
+from app.exception import ProviderUnavailableError, UnknownProviderError,InvalidAPIKeyError
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -37,25 +37,42 @@ async def send_req(req : ChatRequest):
             status_code=400,
             detail=str(e)
         )
+    except InvalidAPIKeyError as e:
+        raise HTTPException(status_code=401, detail=str(e))
 
 @app.post("/chat/stream")
-async def send_stream(req:ChatRequest):
-    try :
-        
+
+@app.post("/chat/stream")
+async def send_stream(req: ChatRequest):
+    stream = gen_streamed_response(req)
+
+    try:
+        first_chunk = await anext(stream)
+    except StopAsyncIteration:
         return StreamingResponse(
-            gen_streamed_response(req),
+            iter(()),
             media_type="text/plain"
         )
+    except InvalidAPIKeyError as e:
+        await stream.aclose()
+        raise HTTPException(status_code=401, detail=str(e))
     except ProviderUnavailableError as e:
-        raise HTTPException(
-            status_code=503,
-            detail=str(e)
-        )
+        await stream.aclose()
+        raise HTTPException(status_code=503, detail=str(e))
     except UnknownProviderError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=str(e)
-            )
+        await stream.aclose()
+        raise HTTPException(status_code=400, detail=str(e))
+
+    async def response_stream():
+        yield first_chunk
+        async for chunk in stream:
+            yield chunk
+
+    return StreamingResponse(
+        response_stream(),
+        media_type="text/plain"
+    )
+
 @app.get("/models")
 async def get_models() : 
 
