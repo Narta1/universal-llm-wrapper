@@ -130,8 +130,6 @@ Response format for `/chat`:
 ## Known issues
 
 
-
-- `gen_prompt` sends the user message before the system message
 - The application fails at startup without `OPENAI_API_KEY`, even when only Ollama is used
 - `/models` returns a `500` when Ollama is unavailable, including for OpenAI models
 - Rate limits and other unmapped provider errors return a generic `500`

@@ -8,13 +8,14 @@ def gen_prompt(req : ChatRequest):
     
 )
     user_prompt=req.prompt
-    res=[{
-        "role":"user",
-        "content" : user_prompt
-    },
+    res=[
     {
         "role":"system",
         "content":system_prompt
+    },
+    {
+        "role":"user",
+        "content" : user_prompt
     }]
     return res
 
