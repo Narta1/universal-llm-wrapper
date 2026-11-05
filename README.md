@@ -129,7 +129,6 @@ Response format for `/chat`:
 
 ## Known issues
 
-- `/models` returns a `500` when Ollama is unavailable, including for OpenAI models
 - Rate limits and other unmapped provider errors return a generic `500`
 - Errors in the middle of a stream are not handled
 - `/chat/stream` does not report token usage or cost

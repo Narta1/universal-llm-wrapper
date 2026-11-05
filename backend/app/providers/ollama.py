@@ -50,10 +50,13 @@ async def stream(prompt,model):
 
 
 async def get_models() :
-    async with httpx.AsyncClient() as client : 
-        res=await client.get(
-            f"{OLLAMA_URL}/api/tags"
-        )
+    try : 
+        async with httpx.AsyncClient() as client : 
+            res=await client.get(
+                f"{OLLAMA_URL}/api/tags"
+            )
+    except httpx.ConnectError :
+        raise ProviderUnavailableError("Ollama is unavailble")
     data=res.json()
 
     models=[]
