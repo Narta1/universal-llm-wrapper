@@ -7,15 +7,22 @@ from app.exception import ProviderUnavailableError, InvalidAPIKeyError
 load_dotenv()
 OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
 
-
-client=AsyncOpenAI(
+_client=None
+def get_client():
+    global _client
+    if _client is None:
+        if not OPENAI_API_KEY:
+            raise InvalidAPIKeyError("OPENAI_API_KEY is not set")
+        _client=AsyncOpenAI(
     
     api_key=OPENAI_API_KEY
 )
+    return _client
+        
 
 async def generate(prompt,model):
     try : 
-        res=await client.chat.completions.create(
+        res=await get_client().chat.completions.create(
             model=model,
             messages=prompt
 
@@ -37,7 +44,7 @@ async def generate(prompt,model):
 
 async def get_models():
     try : 
-        res=await client.models.list()
+        res=await get_client().models.list()
         return [m.id for m in res.data]
     except APIConnectionError as e:
         raise ProviderUnavailableError ("Unable to connect to OpenAI")
@@ -47,7 +54,7 @@ async def get_models():
 
 async def stream(prompt, model):
     try:
-        res = await client.chat.completions.create(
+        res = await get_client().chat.completions.create(
             model=model,
             messages=prompt,
             stream=True,
