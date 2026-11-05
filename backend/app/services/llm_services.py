@@ -66,7 +66,7 @@ async def gen_streamed_response(req: ChatRequest):
 def calculate_cost(model, input_tokens, output_tokens):
     price = pricing.PRICING.get(model,{"input": 0.0, "output": 0.0})
 
-    input_cost = input_tokens * price["input"]
-    output_cost = output_tokens * price["output"]
+    input_cost = input_tokens * price["input"] / 1000000
+    output_cost = output_tokens * price["output"] / 1000000
 
-    return input_cost + output_cost
+    return input_cost + output_cost 

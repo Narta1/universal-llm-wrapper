@@ -129,8 +129,8 @@ Response format for `/chat`:
 
 ## Known issues
 
-- Cost is not divided by 1,000,000, although prices are per million tokens
-- `ChatResponse.cost` is an `int`, so a fractional cost makes `/chat` return a `500`
+
+
 - `gen_prompt` sends the user message before the system message
 - The application fails at startup without `OPENAI_API_KEY`, even when only Ollama is used
 - `/models` returns a `500` when Ollama is unavailable, including for OpenAI models

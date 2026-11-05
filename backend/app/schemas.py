@@ -15,4 +15,4 @@ class ChatResponse(BaseModel) :
     model : str
     provider : str
     status : str
-    cost : int
+    cost : float
